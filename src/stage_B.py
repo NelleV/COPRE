@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.linalg import eig
 from scipy.linalg import svd, qr
 
 
@@ -24,6 +25,7 @@ def row_extraction_svd(A, Q, j=100):
     V = np.dot(W, V.T)
     return U, S, V.T
 
+
 def direct_svd(A, Q):
     """
     Performs a direct SVD
@@ -39,3 +41,7 @@ def direct_svd(A, Q):
     return np.dot(Q, U), S, V
 
 
+def direct_eigenvalue_dec(A, Q):
+    B = np.dot(np.dot(Q.T, A), Q)
+    L, V = eig(B)
+    return L, np.dot(Q, V)

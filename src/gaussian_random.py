@@ -1,12 +1,12 @@
 import numpy as np
 from scipy.linalg import svd, qr
-from matplotlib import pyplot as plt
 
 from sklearn.datasets import fetch_olivetti_faces
 from sklearn.externals.joblib import Memory
 
 from stage_A import randomized_range_finder, fast_randomized_range_finder
 from stage_B import direct_svd
+from draw import draw_plots, error
 
 mem = Memory(cachedir='.')
 
@@ -68,36 +68,13 @@ def algo_3(A, l=8, method='srft'):
     Q, _ = fast_randomized_range_finder(A, l=l, method=method)
     return direct_svd(A, Q)
 
-
-def draw(elements, legend=None):
-    """
-    Draw elements
-    """
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.set_yscale('log')
-    for element in elements:
-        ax.plot(element)
-    if legend:
-        ax.legend(legend)
-    fig.show()
-
-
-def error(ground_truth, S):
-    """
-    Calculate the error
-    """
-    err = np.sqrt((ground_truth - S) ** 2)
-    return err
-
 U1, S1, V1 = mem.cache(algo_1)(gaussian)
 U2, S2, V2 = mem.cache(algo_2)(gaussian, l=100)
 U3, S3, V3 = mem.cache(algo_3)(gaussian, l=100)
 
-draw([S_ground_truth[:100], S1[:100], S2[:100], S3[:100]],
+draw_plots([S_ground_truth[:100], S1[:100], S2[:100], S3[:100]],
      legend=('Ground truth', 'Algo1', 'Algo2', 'Algo3'))
-draw([error(S_ground_truth[:100], S1[:100]),
+draw_plots([error(S_ground_truth[:100], S1[:100]),
       error(S_ground_truth[:100], S2[:100]),
       error(S_ground_truth[:100], S3[:100])],
       legend=('Error 1', 'Error 2', 'Error 3'))

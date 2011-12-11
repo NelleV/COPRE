@@ -32,6 +32,36 @@ def fast_randomized_range_finder(a, l=100, method='srft'):
     return qr(Y, mode='qr')
 
 
+def randomized_power_iteration(A, l=100, q=4):
+    """
+    Performs the Randomized Power Iteration
+
+    Algorithm 4.3
+
+    Parameters
+    ----------
+    A: array
+        matrix to perform the iteration upon
+
+    l: int
+
+    q: int
+        number of power iteration to perform
+
+    Returns
+    -------
+        Q, R: array, array
+    """
+    m, n = A.shape
+    l = 100
+    q = 4
+    o = np.random.normal(size=(n, l))
+
+    Y = np.dot(np.dot(np.dot(A, A.T) ** q, A), o)
+    Q, _ = qr(Y)
+    return Q
+
+
 def SRFT(n, l):
     """
     Computes a subsampled random Fourier Transform matrix
