@@ -7,15 +7,14 @@ from sklearn.externals.joblib import Memory
 mem = Memory(cachedir='.')
 
 
-def get_weight_lena(sigma=50):
+def get_weight_lena(sigma=50000.):
     lena = misc.lena()
 
     lena = lena[:70:, :70]
     patches = []
 
-    sigma = 50.
-    for i in range(lena.shape[0] - 6):
-        for j in range(lena.shape[1] - 6):
+    for i in range(lena.shape[0] - 7):
+        for j in range(lena.shape[1] - 7):
             patches.append(lena[i:i + 6, j:j + 6].flatten())
     dist = np.exp(- euclidean_distances(patches, patches) ** 2 / sigma ** 2)
     thres = dist.copy()
