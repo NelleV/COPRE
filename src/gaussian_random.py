@@ -6,6 +6,7 @@ from sklearn.datasets import fetch_olivetti_faces
 from sklearn.externals.joblib import Memory
 
 from stage_A import randomized_range_finder, fast_randomized_range_finder
+from stage_B import direct_svd
 
 mem = Memory(cachedir='.')
 
@@ -16,21 +17,6 @@ gaussian = np.load('gaussian.npy')
 #gaussian = fetch_olivetti_faces()['data']
 n, m = gaussian.shape
 U_ground_truth, S_ground_truth, V_ground_truth = svd(gaussian)
-
-
-def direct_svd(A, Q):
-    """
-    Performs a direct SVD
-
-    Parameters
-    ----------
-
-    Returns
-    -------
-    """
-    B = np.dot(Q.T, A)
-    U, S, V = svd(B)
-    return np.dot(Q, U), S, V
 
 
 # Algo 1 -> QR factorization and algo 5.1
@@ -81,29 +67,6 @@ def algo_3(A, l=8, method='srft'):
     """
     Q, _ = fast_randomized_range_finder(A, l=l, method=method)
     return direct_svd(A, Q)
-
-
-def row_extraction_svd(A, Q, j=100):
-    """
-    Computes the SVD via Row Extraction
-
-    Parameters
-    ----------
-    A: array
-
-    Q: array
-
-    Returns
-    -------
-    U, S, V.T
-    """
-    # FIXME find J and X by computing an ID on Q
-    Aj = A[:100, :]
-    R, W = qr(Aj)
-    Z = np.dot(X, R)
-    U, S, V = svd(Z)
-    V = np.dot(W, V.T)
-    return U, S, V.T
 
 
 def draw(elements, legend=None):

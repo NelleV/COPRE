@@ -8,9 +8,19 @@ mem = Memory(cachedir='.')
 
 
 def get_weight_lena(sigma=50000.):
+    """
+    Calculates the weight matrix of a small patch of lena's image
+
+    Parameters
+    ----------
+    sigma: int
+
+    Returns
+    -------
+    """
     lena = misc.lena()
 
-    lena = lena[:70:, :70]
+    lena = lena[:30:, :30]
     patches = []
 
     for i in range(lena.shape[0] - 7):
@@ -24,5 +34,15 @@ def get_weight_lena(sigma=50000.):
     dist[dist < thres] = 0
     return dist
 
+
+def hermitian(W):
+    """
+    """
+    m, n = W.shape
+    D = np.sqrt(np.diag(1. / W.sum(axis=0)))
+    return np.dot(np.dot(D, W), D)
+
+
 # Get a large, noisy, and sparse matrice
 W = mem.cache(get_weight_lena)()
+A = mem.cache(hermitian)(W)
