@@ -1,6 +1,8 @@
 \documentclass[onecolumn,12pt]{article}
 \usepackage[utf8]{inputenc}
-\usepackage{amsmath}
+\usepackage{amsmath,amssymb,MnSymbol,amsbsy}
+
+\bibliographystyle{plain}
 
 \author{Nelle Varoquaux}
 
@@ -39,40 +41,162 @@ effectiveness beside.
 
 % FIXME TODO finish me
 
-\subsection{Pseudo algorithm}
+\subsection{blah}
 The task of computing a low rank approximation can be split into two stages.
 
 The first task is to compute a low dimensional subspace that captures most of
 the action of the matrix. The second is to restrict the matrix on that subspace
 and compute the decomposition. This is describe in a more formal way in the
-pseudo algorithm below
+pseudo algorithm below:
+
+Stage A: Compute $Q$ such that $Q$ has orthonormal columns and $A = Q Q^T A$
+
+Stage B: Given a matrix $Q$ that satisfies stage A, compute a standard
+factorization of $A$.
+
+The idea is of course to have a basis matrix Q with as few column as possible.
+
+Stage A can be computed with very effictive randomized algorithms. Stage B can
+be applied after stage A using deterministic algorithms such as SVD, QR
+eigenvalue decomposition etc.
+
+We can formulate the problem exposed in stage A in two different manner: the
+fixed precision problem, and the fixed rank problem.
+
+\subsection{The fixed precision problem}
+
+Given a matrix $A$, and a precision $\epsilon$, we seek matrix $Q$ such that
+
+\begin{equation}
+\label{fixed-precision-pbm}
+\lVert \textbf{A} - \textbf{Q}\textbf{Q}^T \textbf{A} \lVert \leq \epsilon
+\end{equation}
+
+The range of $\textbf{Q}$ is a $k$-dimensional subspace that should capture
+the action of $\textbf{A}$. We want $k$ as small as possible.
+
+The singular value decomposition allows to compute an optimal answer to that
+problem.
+
+\begin{equation}
+\label{eckart-young-thm}
+\min \lVert \textbf{A} - \textbf{X} \lVert = \sigma_{j + 1}
+\end{equation}
+
+\subsection{The fixed rank problem}
+
+In our case, it is convenient to assume we know $k$, the rank of the matrix.
+We want to approximate $\textbf{A}$ with another matrix $\tilde{\textbf{A}}$,
+of specific rank $k$. This is called the fixed-rank problem. Using the
+Frobenius norm of the difference between $\textbf{A}$ and $\tilde{\textbf{A}}$
+A solution is given by the  Eckart-Young Theorem, using the SVD:
+
+$$\tilde{\textbf{A}} = \textbf{U} \tilde{\bold{\Sigma}} \textbf{V}^T$$
+
+where $\tilde{\bold{\Sigma}}$ contains the $k$ largest singular value of
+$\bold{\Sigma}$. Most method performs better when using an oversampling
+parameter $p$.  Instead of compute a matrix $\bold{Q}$ of rank
+$k$, we seek a matrix $\bold{Q}$ of rank $k + p$.
+
+\subsection{The Proto Algorithm - Solving the fixed rank problem}
+
+Let's see an intuitive approach to the stochastic solution of the fixed rank
+problem. We seek a basis for the range of $\bold{A}$ of rank $k$. Let's
+draw $k$ random vectors $\bold{\omega}_i$. The set of vectors $\{
+\bold{\omega}_i, i=1,...k\}$ is likely to form a linear independent set of
+vectors. Therefore, the products $\bold{y}_i = \bold{A} \bold{\omega}_i$ are
+also linearly independent. Hence, orthonormalizing the sample vector yields an
+orthonormal basis of the range of $\bold{A}$.
 
 
+\noindent\fbox{\parbox{\linewidth  \fboxrule  \fboxsep}{
+
+\textsc{ProtoAlgorithm} \\
+1. Draw an $n * (k + p)$ random matrix $\bold{\Omega}$ \\
+2. Form the matrix $\bold{Y} = \bold{A} \bold{\Omega}$ \\
+3. Construct a matrix $\bold{Q}$ whos columns form an othonormal basis for the
+range of $\bold{Y}$ \\ }}
+
+By drawing $k + p$ vector instead of $k$, we render the basis more stable to
+perturbation. \cite{structure-randomness} affirms that setting $p$ to 5 or 10
+yields good results.
+
+The proto-algorithm formalized the procedure. Yet, this procedure raises
+numbers of questions, such as which matrices $\bold{\Omega}$ should we use,
+what are the computational costs to such methods, and what error bound can we
+expect.
 
 \section{Stage A algorithms}
 
+Stage A of the method aims at finding a orthonormal basis that capture most of
+the action of the input matrix $\bold{A}$. There are numerous methods to do
+compute such a basis, and we will briefly present only a few of them.
+
+Despite their apparent dimension, matrices of low numerical rank contain
+little information. Hence, it is reasonable to think that we can find a good
+approximation with far fewer degrees of freedom. Yet, it can be surprising
+that randomized scheme perform extremely well to render this task.
+
+Here are a few methods:
+
+\begin{itemize}
+\item Sparsification
+\item Column selection methods
+\item Approximation by dimension reduction
+\item Approximation by Submatrices
+\end{itemize}
+
 \subsection{Randomized Range Finder}
 
-1. Draw an $n * l$ Gaussian random matrix $\Omega$ \\
-2. Form the $m * l$ matrix $Y = A \Omega$ \\
-3. Construct the $m * l$ matrix $Q$ using the QR factorization $Y = QR$
+The randomized range finder is the simplest implementation of the
+proto-algorithm describe above. Given a matrix $\bold{A}$ and a integer $l$,
+it computes an orthonormal basis $\bold{Q}$. The $\bold{\Omega}$ matrice is
+drawn using a Gaussian distribution with mearn 0 and variance 1.
+
+\noindent\fbox{\parbox{\linewidth  \fboxrule  \fboxsep}{
+\textsc{Randomized Range Finder} \\
+
+1. Draw an $n * l$ Gaussian random matrix $\bold{\Omega}$ \\
+2. Form the $m * l$ matrix $\bold{Y} = \bold{A} \bold{\Omega}$ \\
+3. Construct the $m * l$ matrix $\bold{Q}$ using the QR factorization
+$\bold{Y} = \bold{QR}$
+}}
+
+The question of how to choose the oversampling parameter $l$ has yet to be
+answered. In practice the range $k$ is rarely known in advance. Hence, it is
+raised manually until a good performance is reached.
+
+This algorithm solves the fixed rank problem. In order to handle the fixed
+precision problem, we need to estimate how well $\bold{Q}$ captures the range
+of $\bold{A}$. Hence, we study the approximation error 
+$\lVert (\bold{I} - \bold{Q} \bold{Q}^T) \bold{A} \lVert$
 
 \subsection{Randomized Power Iteration}
 
-1. Draw an $n * l$ Gaussian random matrix $\Omega$ \\
-2. For the $m * l$ matrix $Y = (AA)^qA\Omega$ via alternative application of
+1. Draw an $n * l$ Gaussian random matrix $\bold{\Omega}$ \\
+2. For the $m * l$ matrix $Y = (AA)^qA\bold{\Omega}$ via alternative application of
 $A$ and $A^q$ \\
 3. Construct the $m * l$ matrix $Q$ using the QR factorization $Y = QR$
 
 
 \subsection{Fast Randomized Range Finder}
 
-1. Draw an $n * l$ SRFT test matrix $\Omega$ as defined by % FIXME \\
-2. Form the $m * l$ matrix $Y = A \Omega$ using subsampled FFT \\
+1. Draw an $n * l$ SRFT test matrix $\bold{\Omega}$ as defined by % FIXME \\
+2. Form the $m * l$ matrix $Y = A \bold{\Omega}$ using subsampled FFT \\
 3. Construct the $m *l$ matrix Q using the QR factorization. \\
 
 
 \section{Stage B algorithms}
+
+Stage B of the methods computes the decomposition itself. Before diving into
+more complex methods, let's review a few standard matrix factorization
+algorithm:
+
+\begin{itemize}
+\item The pivoted QR decomposition
+\item The Singular Value Decomposition (SVD)
+\item The interpolative Decomposition (ID)
+\end{itemize}
 
 \subsection{Direct SVD}
 
@@ -126,5 +250,7 @@ $$L = I - D^{-1/2} W D^{1/2}$$.
 % FIXME
 We want to extract the eigenvectors of the matrix $A= D^{1/2} W D^{-1/2}$.In
 order to do so, we use the Algorithm X
+
+\bibliography{varoquaux.bib}
 
 \end{document}
