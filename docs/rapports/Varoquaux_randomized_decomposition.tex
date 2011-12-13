@@ -169,21 +169,97 @@ raised manually until a good performance is reached.
 This algorithm solves the fixed rank problem. In order to handle the fixed
 precision problem, we need to estimate how well $\bold{Q}$ captures the range
 of $\bold{A}$. Hence, we study the approximation error 
-$\lVert (\bold{I} - \bold{Q} \bold{Q}^T) \bold{A} \lVert$
+$\lVert (\bold{I} - \bold{Q} \bold{Q}^T) \bold{A} \lVert$. By drawing a
+sequence of $\bold{\omega}$ standard Gaussian vectors, we can infirm:
+
+\begin{equation}
+\label{rrf-error}
+\lVert (\bold{I} - \bold{Q}\bold{Q}^T) \bold{A})  \lVert \leq 10
+\sqrt{\frac{2}{\pi}}
+\max \lVert(\bold{I} - \bold{Q}\bold{Q}^T) \bold{A} \bold{\omega}^{(i)})  \lVert
+\end{equation}
+
+with a high probability.
 
 \subsection{Randomized Power Iteration}
+
+The Randomized Range Finder performs well for Matrices that have singular
+values that decay quickly. Yet they may perform poorly on matrices that have
+singular values that decay slowly or are too large. Singular vector associated
+with the small singular values interfere in the calculation. The idea behind
+the power iteration is to reduce the weight associated to those values. In
+order to do so, we compute the matrix 
+$\bold{B} = (\bold{A}\bold{A}^T)^q\bold{A} \bold{\Omega}$. $\bold{B}$'s singular
+values can be expressed as:
+
+\begin{equation}
+\label{rps-svd}
+\sigma_j(\bold{B}) = \sigma_j(\bold{A})^{2q+1}, j=1, 2, 3...
+\end{equation}
+
+Using this idea, it is simple to transform the Randomized Range Finder in a
+Randomized Power Iteration algorithm, simply by replacing the formula
+$\bold{Y} = \bold{A} \bold{\Omega}$ of step 2 with 
+$\bold{Y} = (\bold{A}\bold{A}^T)^q\bold{A}  \bold{\Omega}$
+
+\noindent\fbox{\parbox{\linewidth  \fboxrule  \fboxsep}{
+\textsc{Randomized Power Iteration} \\
 
 1. Draw an $n * l$ Gaussian random matrix $\bold{\Omega}$ \\
 2. For the $m * l$ matrix $Y = (AA)^qA\bold{\Omega}$ via alternative application of
 $A$ and $A^q$ \\
 3. Construct the $m * l$ matrix $Q$ using the QR factorization $Y = QR$
+}}
 
+Once again, this algorithm targets the fixed rank problem. To compute the
+fixed precision problem, we use the same trick as the for Randomized Range
+Finder.
 
 \subsection{Fast Randomized Range Finder}
 
-1. Draw an $n * l$ SRFT test matrix $\bold{\Omega}$ as defined by % FIXME \\
+For dense matrix, the Randomized Range Finder can be optimized. By profiling
+the Randomized Range Finder, we can observe that the bottleneck comes from
+computing the product $\bold{A} \bold{\Omega}$. To improve such a computation,
+we can use a structured random matrix. The simplest structured random matrix
+is probably the SRFT.
+
+Such a matrix can be computed as the following:
+
+\begin{equation}
+\label{srft}
+\bold{\Omega} = \sqrt{\frac{n}{l}}\bold{DFR}
+\end{equation}
+
+where $\bold{D}$ $n*n$ diagonal matrix whose entries are random variables
+distributed on the complex unit circle, $\bold{F}$ is the $n*n$ unitary
+discrete Fourier transform, and $\bold{R}$ is an $n*l$ matrix whose $l$ column
+are drawn from the $n*n$ identity matrix.
+
+Once $\bold{\Omega}$ is formed, it is easy and fast to compute the product
+$\bold{Y} = \bold{A\Omega}$ using a subsampled FFT.
+
+1. Draw an $n * l$ SRFT test matrix $\bold{\Omega}$ as defined by \\
 2. Form the $m * l$ matrix $Y = A \bold{\Omega}$ using subsampled FFT \\
 3. Construct the $m *l$ matrix Q using the QR factorization. \\
+
+Another structured random matrix we will be using involves the Givens Rotation
+matrices. It is defined as follow:
+
+\begin{equation}
+\label{gsrft}
+\bold{\Omega} = \bold{D}''\bold{\Theta}' \bold{D}' \bold{\Theta} \bold{D}
+\bold{F} \bold{R}
+\end{equation}
+
+where the matrices $\bold{R}$, $\bold{F}$ and $\bold{D}$ are defined as previously.
+The matrix $\bold{\Theta}$ is a chain of random Givens rotation, defined as
+below:
+
+\begin{equation}
+\label{givens_rotation}
+\bold{\Theta} = \bold{\Pi} \bold{G}(1, 2, \theta_1) \bold{G}(2, 3, \theta_2) \dots
+\bold{G}(n - 1, n, \theta_{n-1})
+\end{equation}
 
 
 \section{Stage B algorithms}
