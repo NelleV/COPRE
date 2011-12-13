@@ -1,0 +1,87 @@
+\documentclass[onecolumn,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\author{Nelle Varoquaux}
+
+\title{Finding Structure with Randomness: Probabilistic Algorithms for
+Constructing Approximate Matrix Decompositions}
+\begin{document}
+\maketitle
+\begin{abstract}
+\it{}
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+In many fields, decompositions are used to implement efficient matrix
+algorithms. In many situations, classical algorithms have become inadequate:
+
+\begin{itemize}
+\item In information science, matrices can be extremely big.
+\item New developments in software hardware add new constraints on the size of
+matrices. It becomes increasingly important to be able to use graphics
+processing units for performance.
+\item Information can be missing or inaccurate in some fields of information
+science. If classical algorithms yield highly accurate results, it may not be
+necessary to spend resources on a high quality result, if the inherent
+source limit the results.
+\end{itemize}
+
+We will study in this article how randomized algorithms provide strong tools
+for constructing such approximation of matrix decomposition. We will focus on
+the quality of the results obtained with such a decomposition, and leave the
+effectiveness beside.
+
+% FIXME TODO finish me
+
+\subsection{Pseudo algorithm}
+The task of computing a low rank approximation can be split into two stages.
+
+The first task is to compute a low dimensional subspace that captures most of
+the action of the matrix. The second is to restric the matrix on that subspace
+and compute the decomposition.
+
+\section{Stage A algorithms}
+
+\section{Stage B algorithms}
+
+\section{Applications}
+\subsection{A large dense matrix}
+This example involves a large dense matrix, derives from the Olivetti face
+dataset, often use for facial recognition. One of the famous method to do such
+task involves extracting principal direction, called \textbf{eigenfaces}. Each
+image can then be summarized by its component along the axis of the principal
+direction. A classifier such as a LinearSVM is then applied, and yields good
+results.
+
+
+
+
+\subsection{A large sparse matrix}
+
+This example involves a large matrix that arises in image processing. Some
+image processing algorithms uses the geometry of the image for tasks such as
+denoising, inpainting \dots. They use a graph laplacian to represent the
+geometry of the image.
+
+We use with a small grayscaled patch of lena, of $100 x 100$. Each pixel is
+represented by a value between $0$ and $255$. Each pixel $x$ is represented by
+a patch of $6x6$ around this pixel. We can then form the weight matrix
+$\tilde{W}$, reflecting the similarity between the patch with:
+
+$$\tilde{w_{ij}} = exp \{ \frac{- (x_i - x_j)^2}{\sigma^2}\}$$
+
+By zeroing all the entries of the weigth matrix $\tilde{W}$ except the seven
+largest ones in earch row, we construct our large sparse matrix $W$.
+
+We can then construct the graph Laplacian matrix:
+
+$$L = I - D^{-1/2} W D^{1/2}$$.
+
+% FIXME
+We want to extract the eigenvectors of the matrix $A= D^{1/2} W D^{-1/2}$.In
+order to do so, we use the Algorithm X
+
+\end{document}
