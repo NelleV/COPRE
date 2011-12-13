@@ -1,11 +1,14 @@
 \documentclass[onecolumn,12pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
+
 \author{Nelle Varoquaux}
 
 \title{Finding Structure with Randomness: Probabilistic Algorithms for
 Constructing Approximate Matrix Decompositions}
 \begin{document}
+
+
 \maketitle
 \begin{abstract}
 \it{}
@@ -40,12 +43,52 @@ effectiveness beside.
 The task of computing a low rank approximation can be split into two stages.
 
 The first task is to compute a low dimensional subspace that captures most of
-the action of the matrix. The second is to restric the matrix on that subspace
-and compute the decomposition.
+the action of the matrix. The second is to restrict the matrix on that subspace
+and compute the decomposition. This is describe in a more formal way in the
+pseudo algorithm below
+
+
 
 \section{Stage A algorithms}
 
+\subsection{Randomized Range Finder}
+
+1. Draw an $n * l$ Gaussian random matrix $\Omega$ \\
+2. Form the $m * l$ matrix $Y = A \Omega$ \\
+3. Construct the $m * l$ matrix $Q$ using the QR factorization $Y = QR$
+
+\subsection{Randomized Power Iteration}
+
+1. Draw an $n * l$ Gaussian random matrix $\Omega$ \\
+2. For the $m * l$ matrix $Y = (AA)^qA\Omega$ via alternative application of
+$A$ and $A^q$ \\
+3. Construct the $m * l$ matrix $Q$ using the QR factorization $Y = QR$
+
+
+\subsection{Fast Randomized Range Finder}
+
+1. Draw an $n * l$ SRFT test matrix $\Omega$ as defined by % FIXME \\
+2. Form the $m * l$ matrix $Y = A \Omega$ using subsampled FFT \\
+3. Construct the $m *l$ matrix Q using the QR factorization. \\
+
+
 \section{Stage B algorithms}
+
+\subsection{Direct SVD}
+
+% Algo
+1. Form the matrix $B = Q^T A$ \\
+2. Compute the SVD of the matrix $ B = \tilde{U}\Sigma V^T$ \\
+3. Form the orthonormal matrix $U = Q \tilde{U}$ \\
+
+\subsection{SVD via Row extraction}
+
+\subsection{Direct Eigenvalue Decomposition}
+% Algo
+1. Form the matrix $B = Q^T A Q$ \\
+2. Compute the SVD of the matrix $ B = \tilde{V}\Lambda V^T$ \\
+3. Form the orthonormal matrix $U = Q \tilde{V}$ \\
+
 
 \section{Applications}
 \subsection{A large dense matrix}
