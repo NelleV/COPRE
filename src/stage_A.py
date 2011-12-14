@@ -18,17 +18,22 @@ def randomized_range_finder(X, l=8):
     return Q, R
 
 
-def fast_randomized_range_finder(a, l=100, method='srft'):
+def fast_randomized_range_finder(a, l=100, method='srft', verbose=False):
     """
     """
     m, n = a.shape
     if method == 'srft':
+        if verbose:
+            print "Computing SRFT matrix"
         o = SRFT(n, l)
     elif method == 'gsrft':
+        if verbose:
+            print "Computing GSRFT matrix"
         o = givensSRFT(n, l)
     else:
         print "Unknown method"
     Y = np.dot(a, o)
+    print "Computing QR decomposition"
     return qr(Y, mode='qr')
 
 

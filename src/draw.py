@@ -1,14 +1,16 @@
+import numpy as np
 from matplotlib import pyplot as plt
 
 
-def draw_plots(elements, legend=None):
+def draw_plots(elements, legend=None, logscale=False):
     """
     Draw elements
     """
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.set_yscale('log')
+    if logscale:
+        ax.set_yscale('log')
     for element in elements:
         ax.plot(element)
     if legend:

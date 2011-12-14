@@ -103,7 +103,7 @@ are often:
 
 \begin{itemize}
 \item{Stage A}: Compute an orthornormal low rank basis $\bold{Q}$ such that, \\
-  $\bold{A} \approx \bold{Q}\bold{Q}^TA$
+  $\bold{A} \approx \bold{Q}\bold{Q}^T\bold{A}$
 
 \item{Stage B}: Compute the matrix factorisation on $\bold{B} = \bold{Q}^T
 \bold{A}$
@@ -114,11 +114,11 @@ are often:
 \frame{
 \begin{block}{The fixed precision problem}
 Given $\bold{A}$ and $\epsilon$, find $\bold{Q}$ s.t.
-$$\lVert \textbf{A} - \textbf{Q}\textbf{Q}^T \textbf{A} \lVert \leq \epsilon$$
+$$\lVert \bold{A} - \bold{Q}\bold{Q}^T \bold{A} \lVert \leq \epsilon$$
 \end{block}
 \begin{block}{The fixed rank problem}
-Given $\bold{A}$ and $k$, seek $\bold{B}$ st
-$$\lVert \bold{A} - \bold{Q}\bold{Q}^T \lVert \approx \min_{rank(\bold{B}) \leq
+Given $\bold{A}$ and $k$, seek $\bold{B}$ s. t.
+$$\lVert \bold{A} - \bold{Q}\bold{Q}^T \bold{A} \lVert \approx \min_{rank(\bold{B}) \leq
 k} \lVert \bold{A} - \bold{B} \lVert$$
 \end{block}
 }
@@ -145,7 +145,7 @@ $\bold{Y} = \bold{QR}$
 \begin{block}{Stage A - Randomized Power Iteration}
 1. Draw an $n * l$ Gaussian random matrix $\bold{\Omega}$ \\
 2. For the $m * l$ matrix $\bold{Y} = (\bold{AA}^T)^q \bold{A} \bold{\Omega}$ via alternative
-application of $A$ and $\bold{A}^q$ \\
+application of $\bold{A}$ and $\bold{A}^q$ \\
 3. Construct the $m * l$ matrix $\bold{Q}$ using the QR factorization
 $\bold{Y} = \bold{QR}$
 \end{block}
@@ -175,15 +175,14 @@ Methods used: Randomized Power Iteration + Direct SVD
 \frame{
 \begin{figure}
 \caption{Power iteration with varying values of q}
+\includegraphics[width=300px]{./images/face_results.png}
 \end{figure}
 }
 
 \frame{
-\begin{block}{Example 2 - Large sparse Matrix}
-Matrix formed computing the graph Laplacian on a small patch of Lena
-\end{block}
-
+\begin{center}
+\huge{Conclusion}
+\end{center}
 }
-
 
 \end{document}

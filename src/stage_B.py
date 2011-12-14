@@ -2,6 +2,8 @@ import numpy as np
 from numpy.linalg import eig
 from scipy.linalg import svd, qr
 
+from ID_dec import compute_ID
+
 
 def row_extraction_svd(A, Q, j=100):
     """
@@ -18,7 +20,8 @@ def row_extraction_svd(A, Q, j=100):
     U, S, V.T
     """
     # FIXME find J and X by computing an ID on Q
-    Aj = A[:100, :]
+    idxs, X = compute_ID(Q)
+    Aj = A[idxs, :]
     R, W = qr(Aj)
     Z = np.dot(X, R)
     U, S, V = svd(Z)
