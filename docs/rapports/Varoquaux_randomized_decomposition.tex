@@ -2,6 +2,17 @@
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath,amssymb,MnSymbol,amsbsy}
 \usepackage{graphicx}
+\usepackage{fancybox}
+
+\newcommand{\shabox}[1] {
+	~\\ % yeah that's as ugly as it can get
+	\ovalbox{
+	\begin{minipage}{\textwidth}
+	#1
+	\end{minipage}
+	}
+	~\\
+}
 
 \bibliographystyle{plain}
 
@@ -164,14 +175,17 @@ proto-algorithm describe above. Given a matrix $\bold{A}$ and a integer $l$,
 it computes an orthonormal basis $\bold{Q}$. The $\bold{\Omega}$ matrix is
 drawn using a Gaussian distribution with mean 0 and variance 1.
 
-\noindent\fbox{\parbox{\linewidth  \fboxrule  \fboxsep}{
+\noindent
+\shabox{
+\parbox{\linewidth  \fboxrule  \fboxsep}{
 \textsc{Randomized Range Finder} \\
-
 1. Draw an $n * l$ Gaussian random matrix $\bold{\Omega}$ \\
 2. Form the $m * l$ matrix $\bold{Y} = \bold{A} \bold{\Omega}$ \\
 3. Construct the $m * l$ matrix $\bold{Q}$ using the QR factorization
 $\bold{Y} = \bold{QR}$
-}}
+}
+}
+
 
 The question of how to choose the oversampling parameter $l$ has yet to be
 answered. In practice the range $k$ is rarely known in advance. Hence, it is
@@ -179,7 +193,7 @@ raised manually until a good performance is reached.
 
 This algorithm solves the fixed rank problem. In order to handle the fixed
 precision problem, we need to estimate how well $\bold{Q}$ captures the range
-of $\bold{A}$. Hence, we study the approximation error 
+of $\bold{A}$. Hence, we study the approximation error
 $\lVert (\bold{I} - \bold{Q} \bold{Q}^T) \bold{A} \lVert$. By drawing a
 sequence of $\bold{\omega}$ standard Gaussian vectors, we can infirm:
 
@@ -199,7 +213,7 @@ values that decay quickly. Yet they may perform poorly on matrices that have
 singular values that decay slowly or are too large. Singular vector associated
 with the small singular values interfere in the calculation. The idea behind
 the power iteration is to reduce the weight associated to those values. In
-order to do so, we compute the matrix 
+order to do so, we compute the matrix
 $\bold{B} = (\bold{A}\bold{A}^T)^q\bold{A} \bold{\Omega}$. $\bold{B}$'s singular
 values can be expressed as:
 
@@ -419,7 +433,7 @@ Using propositions on inverse perturbation, we can conclude that:
 
 % FIXME infer a nune matric
 \begin{equation}
-\bold{I} - \bold{P_Z} = 
+\bold{I} - \bold{P_Z} =
     \begin{bmatrix}
     \bold{I} - (\bold{I} + \bold{F}^T \bold{F})^{-1} & - (\bold{I} +
     \bold{F}^T \bold{F})^{-1}\bold{F}^T \\
