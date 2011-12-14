@@ -1,6 +1,7 @@
 \documentclass[onecolumn,12pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath,amssymb,MnSymbol,amsbsy}
+\usepackage{graphicx}
 
 \bibliographystyle{plain}
 
@@ -13,7 +14,15 @@ Constructing Approximate Matrix Decompositions}
 
 \maketitle
 \begin{abstract}
-\it{}
+\it{Matrices Factorizations have been used for a long time in fields such as
+data analysis and scientific computing. The rank revealing QR and SVD are
+commonly used in algorithms. We will show how \textit{randomized} methods
+offer faster, and sometimes more accurate results. We will first present the
+2-step \textit{framework} will we use: use random sampling to capture in a low
+rank orthonormal basis most of the information of the matrix, then compute an
+approximate factorization. We will then present a survey of different
+algorithms to compute the factorization. We will finish with the study of
+examples, illustrating the use of such algorithms}
 \end{abstract}
 
 \tableofcontents
@@ -30,8 +39,8 @@ matrices. It becomes increasingly important to be able to use graphics
 processing units for performance.
 \item Information can be missing or inaccurate in some fields of information
 science. If classical algorithms yield highly accurate results, it may not be
-necessary to spend resources on a high quality result, if the inherent
-source limit the results.
+necessary to spend resources on a high quality result, considering the input
+data limits the precision we will give to the result.
 \end{itemize}
 
 We will study in this article how randomized algorithms provide strong tools
@@ -41,7 +50,7 @@ effectiveness beside.
 
 % FIXME TODO finish me
 
-\subsection{blah}
+\subsection{A two stage approach for the low rank approximation}
 The task of computing a low rank approximation can be split into two stages.
 
 The first task is to compute a low dimensional subspace that captures most of
@@ -49,14 +58,15 @@ the action of the matrix. The second is to restrict the matrix on that subspace
 and compute the decomposition. This is describe in a more formal way in the
 pseudo algorithm below:
 
-Stage A: Compute $Q$ such that $Q$ has orthonormal columns and $A = Q Q^T A$
+\textbf{Stage A}: Compute $\bold{Q}$ such that $\bold{Q}$ has orthonormal columns and
+$\bold{A} = \bold{Q} \bold{Q}^T \bold{A}$
 
-Stage B: Given a matrix $Q$ that satisfies stage A, compute a standard
-factorization of $A$.
+\textbf{Stage B}: Given a matrix $\bold{Q}$ that satisfies stage A, compute a standard
+factorization of $\bold{A}$.
 
-The idea is of course to have a basis matrix Q with as few column as possible.
+The idea is of course to have a basis matrix $\bold{Q}$ with as few column as possible.
 
-Stage A can be computed with very effictive randomized algorithms. Stage B can
+Stage A can be computed with very effective randomized algorithms. Stage B can
 be applied after stage A using deterministic algorithms such as SVD, QR
 eigenvalue decomposition etc.
 
@@ -65,7 +75,8 @@ fixed precision problem, and the fixed rank problem.
 
 \subsection{The fixed precision problem}
 
-Given a matrix $A$, and a precision $\epsilon$, we seek matrix $Q$ such that
+Given a matrix $\bold{A}$, and a precision $\epsilon$, we seek matrix
+$\bold{Q}$ such that
 
 \begin{equation}
 \label{fixed-precision-pbm}
@@ -80,7 +91,7 @@ problem.
 
 \begin{equation}
 \label{eckart-young-thm}
-\min \lVert \textbf{A} - \textbf{X} \lVert = \sigma_{j + 1}
+\min_{range(\bold{X} \leq k} \lVert \textbf{A} - \textbf{X} \lVert = \sigma_{j + 1}
 \end{equation}
 
 \subsection{The fixed rank problem}
@@ -114,7 +125,7 @@ orthonormal basis of the range of $\bold{A}$.
 \textsc{ProtoAlgorithm} \\
 1. Draw an $n * (k + p)$ random matrix $\bold{\Omega}$ \\
 2. Form the matrix $\bold{Y} = \bold{A} \bold{\Omega}$ \\
-3. Construct a matrix $\bold{Q}$ whos columns form an othonormal basis for the
+3. Construct a matrix $\bold{Q}$ whose columns form an othonormal basis for the
 range of $\bold{Y}$ \\ }}
 
 By drawing $k + p$ vector instead of $k$, we render the basis more stable to
@@ -150,8 +161,8 @@ Here are a few methods:
 
 The randomized range finder is the simplest implementation of the
 proto-algorithm describe above. Given a matrix $\bold{A}$ and a integer $l$,
-it computes an orthonormal basis $\bold{Q}$. The $\bold{\Omega}$ matrice is
-drawn using a Gaussian distribution with mearn 0 and variance 1.
+it computes an orthonormal basis $\bold{Q}$. The $\bold{\Omega}$ matrix is
+drawn using a Gaussian distribution with mean 0 and variance 1.
 
 \noindent\fbox{\parbox{\linewidth  \fboxrule  \fboxsep}{
 \textsc{Randomized Range Finder} \\
@@ -199,16 +210,17 @@ values can be expressed as:
 
 Using this idea, it is simple to transform the Randomized Range Finder in a
 Randomized Power Iteration algorithm, simply by replacing the formula
-$\bold{Y} = \bold{A} \bold{\Omega}$ of step 2 with 
+$\bold{Y} = \bold{A} \bold{\Omega}$ of step 2 with
 $\bold{Y} = (\bold{A}\bold{A}^T)^q\bold{A}  \bold{\Omega}$
 
 \noindent\fbox{\parbox{\linewidth  \fboxrule  \fboxsep}{
 \textsc{Randomized Power Iteration} \\
 
 1. Draw an $n * l$ Gaussian random matrix $\bold{\Omega}$ \\
-2. For the $m * l$ matrix $Y = (AA)^qA\bold{\Omega}$ via alternative application of
-$A$ and $A^q$ \\
-3. Construct the $m * l$ matrix $Q$ using the QR factorization $Y = QR$
+2. For the $m * l$ matrix $\bold{Y} = (\bold{AA}^T)^q\bold{A}\bold{\Omega}$ via alternative application of
+$\bold{A}$ and $\bold{A}^T$ \\
+3. Construct the $m * l$ matrix $\bold{Q}$ using the QR factorization
+$\bold{Y} = \bold{QR}$
 }}
 
 Once again, this algorithm targets the fixed rank problem. To compute the
@@ -238,9 +250,12 @@ are drawn from the $n*n$ identity matrix.
 Once $\bold{\Omega}$ is formed, it is easy and fast to compute the product
 $\bold{Y} = \bold{A\Omega}$ using a subsampled FFT.
 
+\noindent\fbox{\parbox{\linewidth  \fboxrule  \fboxsep}{
+
 1. Draw an $n * l$ SRFT test matrix $\bold{\Omega}$ as defined by \\
-2. Form the $m * l$ matrix $Y = A \bold{\Omega}$ using subsampled FFT \\
-3. Construct the $m *l$ matrix Q using the QR factorization. \\
+2. Form the $m * l$ matrix $\bold{Y} = \bold{A} \bold{\Omega}$ using subsampled FFT \\
+3. Construct the $m *l$ matrix $\bold{Q}$ using the QR factorization. \\
+}}
 
 Another structured random matrix we will be using involves the Givens Rotation
 matrices. It is defined as follow:
@@ -274,32 +289,207 @@ algorithm:
 \item The interpolative Decomposition (ID)
 \end{itemize}
 
-\subsection{Direct SVD}
+\subsection{Direct SVD \& Direct EigenValue Decomposition}
 
-% Algo
-1. Form the matrix $B = Q^T A$ \\
-2. Compute the SVD of the matrix $ B = \tilde{U}\Sigma V^T$ \\
-3. Form the orthonormal matrix $U = Q \tilde{U}$ \\
+We know that $\lVert \bold{A} - \bold{Q} \bold{B} \lVert \leq \epsilon$, where
+$\bold{B} ) \bold{Q}^T \bold{A}$. Therefore, the simplest factorization
+consists of computing a well known factorization directly on $\bold{B}$
+The factorization should not degrade the error. Hence, a direct SVD will
+satisfy:
+
+\begin{equation}
+\lVert \bold{A} - \bold{U} \bold{\Sigma}\bold{V}^T \lVert \leq \epsilon
+\end{equation}
+
+\noindent\fbox{\parbox{\linewidth  \fboxrule  \fboxsep}{
+
+\textsc{Direct SVD}
+
+Given a matrix $\bold{A}$ and an orthornomal basis $\bold{Q}$ such that \\
+
+1. Form the matrix $\bold{B} = \bold{Q}^T \bold{A}$ \\
+2. Compute the SVD of the matrix $\bold{B} = \tilde{\bold{U}}\bold{\Sigma}
+\bold{V}^T$ \\
+3. Form the orthonormal matrix $\bold{U} = \bold{Q} \tilde{\bold{U}}$ \\
+}}
+
+\noindent\fbox{\parbox{\linewidth  \fboxrule  \fboxsep}{
+
+\textsc{Direct EigenValue Decomposition}
+
+Given a matrice $\bold{A}$ and an orthonormal basis $\bold{Q}$ \\
+
+1. Form the matrix $\bold{B} = \bold{Q}^T \bold{A} \bold{Q}$ \\
+2. Compute the SVD of the matrix $\bold{B} = \tilde{\bold{V}}\bold{\Lambda}
+\bold{V}^T$ \\
+3. Form the orthonormal matrix $\bold{U} = \bold{Q} \tilde{\bold{V}}$ \\
+}}
 
 \subsection{SVD via Row extraction}
 
-\subsection{Direct Eigenvalue Decomposition}
-% Algo
-1. Form the matrix $B = Q^T A Q$ \\
-2. Compute the SVD of the matrix $ B = \tilde{V}\Lambda V^T$ \\
-3. Form the orthonormal matrix $U = Q \tilde{V}$ \\
+Using an interpolative decomposition will create a faster algorithm. An
+interpolative decomposition is a factorization that identifies $k$ columns of
+$\bold{A}$ that span the range of $\bold{A}$. Hence, there exists an index $J$
+such that:
 
+\begin{equation}
+\bold{A} = \bold{A}_J \bold{X}
+\end{equation}
+
+where $\bold{A_J}$ is a matrix composed of a subset of $\bold{A}$'s column.
+Hence, $\bold{X}$ is a $k*n$ matrix that have $J$ column that form a
+permutation of $\bold{I}_k$. Moreover, none entries of $\bold{X}$ exceed $2$.
+This means that this decomposition express a linear combination of $\bold{A}$
+with bounded coefficient.
+
+Using this decomposition on the orthonormal basis $\bold{Q}$, we can express
+$\bold{A}$ as:
+
+\begin{equation}
+\bold{A} \approx \bold{QQ}^T = \bold{XQ}_J\bold{Q}^T\bold{A}
+\end{equation}
+
+Factorization approximation such as the SVD via row extraction can be computed
+using these techniques. The SVD via Row extraction yields less accurate
+results than a direct SVD, but this algorithm also is much faster.
+
+\section{Theory}
+
+Let $\bold{A}$ be a $m*n$ matrix, and $\bold{U}\bold{\Sigma}\bold{V}^T$ it's
+SVD. Let $k$ be an integer that represents the rank of the approximation we
+are computing.
+
+In order to perform the analysis, let's split the singular values in two sets:
+$\bold{\Sigma}_1$ are the first $k$ singular values, and $\bold{\Sigma_2}$ are
+the last $n - k$ ones, and $\bold{V_1}^T$, $\bold{V_2}^T$ the right singular
+vectors associated with these. We consider that $k$ is chosen such that all
+singular values from $\bold{\Sigma_1}$ are positive.
+
+Now, let's draw a $n*l$ random matrix $\bold{\Omega}$. Let $\bold{\Omega}_1$
+and $\bold{\Omega}_2$ such that $\bold{\Omega}_1 = \bold{V_1}^T \bold{\Omega}$
+and $\bold{\Omega}_2 = \bold{V_2}^T \bold{\Omega}$.
+
+Using this notation, we can write matrix $\bold{Y} = \bold{A\Omega}$ with
+$\bold{V}_1$ and $\bold{V}_2$.
+
+Let's define $\tilde{\bold{A}} = \bold{U}^T \bold{A}$ and $\tilde{\bold{Y}} =
+\tilde{\bold{A}} \bold{\Omega}$.
+
+Using this notation, we can prove that $\lVert (\bold{I} - \bold{P_Y}
+)\bold{A} = \lVert (\bold{I} - \bold{P}_{\tilde{\bold{Y}}} \tilde{\bold{A}}\lVert$
+
+Constructing the matrix $\bold{Z}$ by flattening the top of
+$\tilde{\bold{Y}}$:
+
+\begin{equation}
+\bold{Z} = \tilde{\bold{Y}} * \bold{\Omega}_1^* \bold{\Sigma_1}^{-1}
+\end{equation}
+
+By construction, range($\bold{Z}$) $\subset$ range($\tilde{\bold{Y}}$). That
+implies that:
+
+\begin{equation}
+\lVert (\bold{I} - \bold{P_{\tilde{Y}}} \tilde{\bold{A}}) \lVert \leq
+\lVert (\bold{I} - \bold{P_{\tilde{Z}}} \tilde{\bold{A}})
+\end{equation}
+
+Moreover, we can prove that
+
+\begin{equation}
+\lVert (\bold{I} - \bold{P_{\tilde{Y}}} \tilde{\bold{A}}) \lVert \leq
+\lVert \bold{\Sigma}^T (\bold{I} - \bold{P_Z}) \bold{\Sigma}\lVert
+\end{equation}
+
+% FIXME write the matrix
+We know that:
+\begin{align}
+\bold{P_Z} & = & \bold{Z} (\bold{Z} \bold{Z})^{-1} \bold{Z}^T \\
+	   & = &
+	   \begin{bmatrix}
+	   \bold{I} \\
+	   \bold{F}
+	   \end{bmatrix} (\bold{I} - \bold{P_Z}) \tilde{\bold{A}}
+	   \begin{bmatrix}
+	   \bold{I} \\
+	   \bold{F}
+	   \end{bmatrix}^T
+\end{align}
+
+Using propositions on inverse perturbation, we can conclude that:
+
+% FIXME infer a nune matric
+\begin{equation}
+\bold{I} - \bold{P_Z} = 
+    \begin{bmatrix}
+    \bold{I} - (\bold{I} + \bold{F}^T \bold{F})^{-1} & - (\bold{I} +
+    \bold{F}^T \bold{F})^{-1}\bold{F}^T \\
+    \bold{F}(\bold{I} + \bold{F}^T \bold{F})^{-1}  & \bold{I} -
+    \bold{F}(\bold{I} + \bold{F}^T \bold{F})^{-1} \bold{F}^T
+    \end{bmatrix}
+\end{equation}
+
+Mutlipyling by $\bold{\Sigma}$ and $\bold{\Sigma}^T$, and using the fact that
+the left handside is positive semi definite, we can compute the bound:
+
+\begin{equation}
+\lVert \bold{\Sigma}^T (\bold{I} - \bold{P_Z}) \bold{Z} \lVert \leq
+\lVert \bold{\Sigma_1}^T \bold{F}^T \bold{F} \bold{\Sigma_1}^T\lVert +
+\lVert \bold{\Sigma}_2^T \bold{\Sigma}_2 \lVert  =
+\lVert \bold{F} \bold{\Sigma}_ 2\lVert^2 + \lVert \bold{\Sigma}_2 \lVert^2
+\end{equation}
+
+We therefore have found a bound of the approximation error depending on
+$\bold{\Omega}$ and the singular value, as expected.
+
+Using this bound, it is easy to analyse the power scheme. The truncated SVD
+has a well known results.
 
 \section{Applications}
 \subsection{A large dense matrix}
+\begin{figure}[h]
+\label{eigenfaces}
+\caption{Eigenfaces of the Olivetti dataset}
+% FIXME add faces of the Olivetti dataset
+\includegraphics[width=150px]{./images/plot_faces_decomposition_2.png}
+\end{figure}
+
+
 This example involves a large dense matrix, derives from the Olivetti face
 dataset, often use for facial recognition. One of the famous method to do such
-task involves extracting principal direction, called \textbf{eigenfaces}. Each
-image can then be summarized by its component along the axis of the principal
-direction. A classifier such as a LinearSVM is then applied, and yields good
-results.
+task involves extracting principal direction, called \textbf{eigenfaces}. As
+show on figure \ref{eigenfaces}, each image can then be summarized by its
+component along the axis of the principal direction. A classifier such as a
+LinearSVM is then applied, and yields good results.
 
+In order for the data to fit in ram, each image is scaled to 64 * 64 bits.
+Only the first 400 images of the dataset are used. This yields a 400 * 4096
+matrix. We normalise the matrix by normalising and centering each row.
 
+\begin{figure}[h]
+\label{eigenfaces-computation}
+\caption{Power iteration with different values of $q$}
+\includegraphics[width=400px]{./images/face_results.png}
+\end{figure}
+
+In order to compute the approximate Eigenfaces, we will use the Randomized
+Power Iteration, with different values of q. The groundtruth is computed using
+a truncated SVD. \ref{eigenfaces-computation} shows the behaviour of the power
+scheme. When $q=0$, the results are quite poor, but they improve as $q$
+increases.
+
+One of the questions the proto algorithm raised is how to choose the rank $k$
+for the approximation in stage A. We compute the Randomized Range Finder for
+$k=100$ with a subsampled value $p$ varying from $1$ to $50$, average on 100
+draws.
+
+\ref{rrf-different-p} shows the impact of the subsampled value chosen.
+We notice that we good results for $p = 20$.
+
+\begin{figure}[h]
+\label{rrf-different-p}
+\caption{Study of the impact of p on the Randomized Range Finder}
+\includegraphics[width=400px]{./images/l_va.png}
+\end{figure}
 
 
 \subsection{A large sparse matrix}
@@ -312,20 +502,28 @@ geometry of the image.
 We use with a small grayscaled patch of lena, of $100 x 100$. Each pixel is
 represented by a value between $0$ and $255$. Each pixel $x$ is represented by
 a patch of $6x6$ around this pixel. We can then form the weight matrix
-$\tilde{W}$, reflecting the similarity between the patch with:
+$\tilde{\bold{W}}$, reflecting the similarity between the patch with:
 
 $$\tilde{w_{ij}} = exp \{ \frac{- (x_i - x_j)^2}{\sigma^2}\}$$
 
-By zeroing all the entries of the weigth matrix $\tilde{W}$ except the seven
+By zeroing all the entries of the weigth matrix $\tilde{\bold{W}}$ except the seven
 largest ones in earch row, we construct our large sparse matrix $W$.
 
 We can then construct the graph Laplacian matrix:
 
-$$L = I - D^{-1/2} W D^{1/2}$$.
+$$\bold{L} = \bold{I} - \bold{D}^{-1/2} \bold{W} \bold{D}^{1/2}$$.
 
-% FIXME
-We want to extract the eigenvectors of the matrix $A= D^{1/2} W D^{-1/2}$.In
-order to do so, we use the Algorithm X
+We want to extract the eigenvectors of the matrix
+$\bold{A}= \bold{D}^{1/2} \bold{W} \bold{D}^{-1/2}$.
+
+\section{Conclusion}
+
+We have here listed randomized algorithm for approximate matrix decomposition,
+and given a brief overview of the theory behind this methods, in addition to
+given real world examples. As shown, randomized method yields extremely good
+results in term of approximation. Yet, we have not explored the speed gain
+such algorithms provide. Therefore, it would be interesting to explore this
+part.
 
 \bibliography{varoquaux.bib}
 
