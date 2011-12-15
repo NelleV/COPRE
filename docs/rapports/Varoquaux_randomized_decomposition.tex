@@ -131,7 +131,7 @@ also linearly independent. Hence, orthonormalizing the sample vector yields an
 orthonormal basis of the range of $\bold{A}$.
 
 
-\noindent\fbox{\parbox{\linewidth  \fboxrule  \fboxsep}{
+\noindent\shabox{\parbox{\linewidth  \fboxrule  \fboxsep}{
 
 \textsc{ProtoAlgorithm} \\
 1. Draw an $n * (k + p)$ random matrix $\bold{\Omega}$ \\
@@ -179,6 +179,7 @@ drawn using a Gaussian distribution with mean 0 and variance 1.
 \shabox{
 \parbox{\linewidth  \fboxrule  \fboxsep}{
 \textsc{Randomized Range Finder} \\
+
 1. Draw an $n * l$ Gaussian random matrix $\bold{\Omega}$ \\
 2. Form the $m * l$ matrix $\bold{Y} = \bold{A} \bold{\Omega}$ \\
 3. Construct the $m * l$ matrix $\bold{Q}$ using the QR factorization
@@ -227,7 +228,7 @@ Randomized Power Iteration algorithm, simply by replacing the formula
 $\bold{Y} = \bold{A} \bold{\Omega}$ of step 2 with
 $\bold{Y} = (\bold{A}\bold{A}^T)^q\bold{A}  \bold{\Omega}$
 
-\noindent\fbox{\parbox{\linewidth  \fboxrule  \fboxsep}{
+\noindent\shabox{\parbox{\linewidth  \fboxrule  \fboxsep}{
 \textsc{Randomized Power Iteration} \\
 
 1. Draw an $n * l$ Gaussian random matrix $\bold{\Omega}$ \\
@@ -264,7 +265,9 @@ are drawn from the $n*n$ identity matrix.
 Once $\bold{\Omega}$ is formed, it is easy and fast to compute the product
 $\bold{Y} = \bold{A\Omega}$ using a subsampled FFT.
 
-\noindent\fbox{\parbox{\linewidth  \fboxrule  \fboxsep}{
+\noindent\shabox{\parbox{\linewidth  \fboxrule  \fboxsep}{
+
+\textsc{Fast Randomized Range Finder}
 
 1. Draw an $n * l$ SRFT test matrix $\bold{\Omega}$ as defined by \\
 2. Form the $m * l$ matrix $\bold{Y} = \bold{A} \bold{\Omega}$ using subsampled FFT \\
@@ -294,13 +297,13 @@ below:
 \section{Stage B algorithms}
 
 Stage B of the methods computes the decomposition itself. Before diving into
-more complex methods, let's review a few standard matrix factorization
-algorithm:
+more complex methods, here are a list of well known deterministic approach to
+factorisation:
 
 \begin{itemize}
 \item The pivoted QR decomposition
 \item The Singular Value Decomposition (SVD)
-\item The interpolative Decomposition (ID)
+\item The Interpolative Decomposition (ID)
 \end{itemize}
 
 \subsection{Direct SVD \& Direct EigenValue Decomposition}
@@ -315,7 +318,7 @@ satisfy:
 \lVert \bold{A} - \bold{U} \bold{\Sigma}\bold{V}^T \lVert \leq \epsilon
 \end{equation}
 
-\noindent\fbox{\parbox{\linewidth  \fboxrule  \fboxsep}{
+\noindent\shabox{\parbox{\linewidth  \fboxrule  \fboxsep}{
 
 \textsc{Direct SVD}
 
@@ -327,7 +330,7 @@ Given a matrix $\bold{A}$ and an orthornomal basis $\bold{Q}$ such that \\
 3. Form the orthonormal matrix $\bold{U} = \bold{Q} \tilde{\bold{U}}$ \\
 }}
 
-\noindent\fbox{\parbox{\linewidth  \fboxrule  \fboxsep}{
+\noindent\shabox{\parbox{\linewidth  \fboxrule  \fboxsep}{
 
 \textsc{Direct EigenValue Decomposition}
 
@@ -371,43 +374,44 @@ results than a direct SVD, but this algorithm also is much faster.
 
 Let $\bold{A}$ be a $m*n$ matrix, and $\bold{U}\bold{\Sigma}\bold{V}^T$ it's
 SVD. Let $k$ be an integer that represents the rank of the approximation we
-are computing.
+are computing. \\
 
 In order to perform the analysis, let's split the singular values in two sets:
 $\bold{\Sigma}_1$ are the first $k$ singular values, and $\bold{\Sigma_2}$ are
 the last $n - k$ ones, and $\bold{V_1}^T$, $\bold{V_2}^T$ the right singular
 vectors associated with these. We consider that $k$ is chosen such that all
-singular values from $\bold{\Sigma_1}$ are positive.
+singular values from $\bold{\Sigma_1}$ are positive. \\
 
 Now, let's draw a $n*l$ random matrix $\bold{\Omega}$. Let $\bold{\Omega}_1$
 and $\bold{\Omega}_2$ such that $\bold{\Omega}_1 = \bold{V_1}^T \bold{\Omega}$
-and $\bold{\Omega}_2 = \bold{V_2}^T \bold{\Omega}$.
+and $\bold{\Omega}_2 = \bold{V_2}^T \bold{\Omega}$. \\
 
 Using this notation, we can write matrix $\bold{Y} = \bold{A\Omega}$ with
-$\bold{V}_1$ and $\bold{V}_2$.
+$\bold{V}_1$ and $\bold{V}_2$. \\
 
 Let's define $\tilde{\bold{A}} = \bold{U}^T \bold{A}$ and $\tilde{\bold{Y}} =
-\tilde{\bold{A}} \bold{\Omega}$.
+\tilde{\bold{A}} \bold{\Omega}$. \\
 
 Using this notation, we can prove that $\lVert (\bold{I} - \bold{P_Y}
-)\bold{A} = \lVert (\bold{I} - \bold{P}_{\tilde{\bold{Y}}} \tilde{\bold{A}}\lVert$
+)\bold{A} = \lVert (\bold{I} - \bold{P}_{\tilde{\bold{Y}}}
+\tilde{\bold{A}}\lVert$ \\
 
 Constructing the matrix $\bold{Z}$ by flattening the top of
-$\tilde{\bold{Y}}$:
+$\tilde{\bold{Y}}$: 
 
 \begin{equation}
 \bold{Z} = \tilde{\bold{Y}} * \bold{\Omega}_1^* \bold{\Sigma_1}^{-1}
 \end{equation}
 
 By construction, range($\bold{Z}$) $\subset$ range($\tilde{\bold{Y}}$). That
-implies that:
+implies that: 
 
 \begin{equation}
 \lVert (\bold{I} - \bold{P_{\tilde{Y}}} \tilde{\bold{A}}) \lVert \leq
 \lVert (\bold{I} - \bold{P_{\tilde{Z}}} \tilde{\bold{A}})
 \end{equation}
 
-Moreover, we can prove that
+Moreover, we can prove that 
 
 \begin{equation}
 \lVert (\bold{I} - \bold{P_{\tilde{Y}}} \tilde{\bold{A}}) \lVert \leq
@@ -456,7 +460,7 @@ We therefore have found a bound of the approximation error depending on
 $\bold{\Omega}$ and the singular value, as expected.
 
 Using this bound, it is easy to analyse the power scheme. The truncated SVD
-has a well known results.
+also has a well known results.
 
 \section{Applications}
 \subsection{A large dense matrix}
@@ -527,8 +531,24 @@ We can then construct the graph Laplacian matrix:
 
 $$\bold{L} = \bold{I} - \bold{D}^{-1/2} \bold{W} \bold{D}^{1/2}$$.
 
-We want to extract the eigenvectors of the matrix
+We want to extract the eigenvectors of the matrix:
 $\bold{A}= \bold{D}^{1/2} \bold{W} \bold{D}^{-1/2}$.
+
+We test three different stage A methods in order to do so: the Randomized
+Range Finder, the Randomized Power Iteration with $q=4$, and the Randomized
+Range Finder with a SRFT matrix.
+
+\ref{eigenvalues} illustrates the results. We can observe that the SRFT
+performs better than the Randomized Range Finder, and has equivalent
+performance compared to the Power Iteration. Using a SRFT matrix over a
+Gaussian one also provide significant speed up.
+
+\begin{figure}[h]
+\label{eigenvalues}
+\caption{Finding eigenvalue, with the Randomized Range Finder, the Power
+Scheme and the Randomized Range Finder with a SRFT random matrix}
+\includegraphics[width=400px]{./images/eigenvalue.png}
+\end{figure}
 
 \section{Conclusion}
 
